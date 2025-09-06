@@ -1,0 +1,275 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Poker Engine Library Contract",
+    "version": "1.0.0",
+    "description": "Core poker calculation and probability engine library interface"
+  },
+  "components": {
+    "schemas": {
+      "Card": {
+        "type": "object",
+        "required": ["suit", "rank", "value", "display", "id"],
+        "properties": {
+          "suit": {
+            "type": "string",
+            "enum": ["hearts", "diamonds", "clubs", "spades"]
+          },
+          "rank": {
+            "type": "string", 
+            "enum": ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+          },
+          "value": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 14
+          },
+          "display": {
+            "type": "string",
+            "pattern": "^[AKQJ2-9]|10[♠♥♦♣]$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[AKQJ2-9]|10[SHDC]$"
+          }
+        }
+      },
+      "HandStrength": {
+        "type": "integer",
+        "enum": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        "description": "0=HIGH_CARD, 1=PAIR, 2=TWO_PAIR, 3=THREE_OF_A_KIND, 4=STRAIGHT, 5=FLUSH, 6=FULL_HOUSE, 7=FOUR_OF_A_KIND, 8=STRAIGHT_FLUSH, 9=ROYAL_FLUSH"
+      },
+      "GameStage": {
+        "type": "string",
+        "enum": ["pre-flop", "flop", "turn", "river"]
+      },
+      "ProbabilityResult": {
+        "type": "object",
+        "required": ["handType", "probability", "percentage", "odds", "occurrences", "totalOutcomes"],
+        "properties": {
+          "handType": {"$ref": "#/components/schemas/HandStrength"},
+          "probability": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "percentage": {
+            "type": "number", 
+            "minimum": 0,
+            "maximum": 100
+          },
+          "odds": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d+)?:\\d+$"
+          },
+          "occurrences": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalOutcomes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "CalculationResults": {
+        "type": "object",
+        "required": ["stage", "playerHand", "communityCards", "probabilities", "calculationTime", "method", "timestamp"],
+        "properties": {
+          "stage": {"$ref": "#/components/schemas/GameStage"},
+          "playerHand": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/Card"},
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "communityCards": {
+            "type": "array", 
+            "items": {"$ref": "#/components/schemas/Card"},
+            "minItems": 0,
+            "maxItems": 5
+          },
+          "probabilities": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/ProbabilityResult"}
+          },
+          "calculationTime": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000,
+            "description": "Calculation time in milliseconds"
+          },
+          "method": {
+            "type": "string",
+            "enum": ["lookup", "simulation", "exact"]
+          },
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp when calculation was performed"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/calculate": {
+      "post": {
+        "operationId": "calculateProbabilities",
+        "summary": "Calculate poker hand probabilities for current game state",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["playerHand", "communityCards", "stage"],
+                "properties": {
+                  "playerHand": {
+                    "type": "array",
+                    "items": {"$ref": "#/components/schemas/Card"},
+                    "minItems": 2,
+                    "maxItems": 2
+                  },
+                  "communityCards": {
+                    "type": "array",
+                    "items": {"$ref": "#/components/schemas/Card"},
+                    "minItems": 0,
+                    "maxItems": 5
+                  },
+                  "stage": {"$ref": "#/components/schemas/GameStage"},
+                  "preferredMethod": {
+                    "type": "string",
+                    "enum": ["auto", "lookup", "simulation", "exact"],
+                    "default": "auto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Calculation completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/CalculationResults"}
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (duplicate cards, invalid combinations)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {"type": "string"},
+                    "code": {"type": "string"},
+                    "details": {"type": "object"}
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Calculation failed", 
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {"type": "string"},
+                    "code": {"type": "string"},
+                    "method": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/evaluate": {
+      "post": {
+        "operationId": "evaluateHand",
+        "summary": "Evaluate best 5-card hand from given cards",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object", 
+                "required": ["cards"],
+                "properties": {
+                  "cards": {
+                    "type": "array",
+                    "items": {"$ref": "#/components/schemas/Card"},
+                    "minItems": 5,
+                    "maxItems": 7
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hand evaluation completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["bestHand", "handStrength", "kickers"],
+                  "properties": {
+                    "bestHand": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/Card"},
+                      "minItems": 5,
+                      "maxItems": 5
+                    },
+                    "handStrength": {"$ref": "#/components/schemas/HandStrength"},
+                    "kickers": {
+                      "type": "array", 
+                      "items": {"$ref": "#/components/schemas/Card"}
+                    },
+                    "description": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "checkHealth",
+        "summary": "Health check endpoint",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {"type": "string", "enum": ["healthy"]},
+                    "version": {"type": "string"},
+                    "lookupTablesLoaded": {"type": "boolean"},
+                    "performance": {
+                      "type": "object",
+                      "properties": {
+                        "avgCalculationTime": {"type": "number"},
+                        "cacheHitRate": {"type": "number"}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

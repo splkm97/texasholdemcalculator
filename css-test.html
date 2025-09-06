@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animations from index.css */
+        @keyframes cardGlow {
+            0%, 100% { 
+                box-shadow: 0 0 10px rgba(255,255,255,0.3), 
+                            0 0 20px rgba(255,255,255,0.1),
+                            0 0 30px rgba(255,255,255,0.05); 
+            }
+            50% { 
+                box-shadow: 0 0 15px rgba(255,255,255,0.4), 
+                            0 0 30px rgba(255,255,255,0.2),
+                            0 0 45px rgba(255,255,255,0.1); 
+            }
+        }
+
+        @keyframes cardShine {
+            0% { transform: translateX(-100%) skewX(-15deg); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(200%) skewX(-15deg); opacity: 0; }
+        }
+
+        .card-luxury {
+            animation: cardGlow 4s ease-in-out infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-shine::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                transparent 30%, 
+                rgba(255,255,255,0.6) 45%, 
+                rgba(255,255,255,0.8) 50%, 
+                rgba(255,255,255,0.6) 55%, 
+                transparent 70%);
+            transform: translateX(-100%) skewX(-15deg);
+            animation: cardShine 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-900 via-green-800 to-emerald-900 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-4xl font-bold text-yellow-400 text-center mb-8">🃏 Card Design Test</h1>
+        
+        <!-- Test Cards -->
+        <div class="flex gap-4 justify-center items-center mb-8">
+            <!-- Small Card -->
+            <div class="w-20 h-28 bg-gradient-to-br from-white via-red-50 to-red-100 rounded-2xl font-bold shadow-xl border-4 border-white/90 relative card-luxury card-shine cursor-pointer hover:scale-110 hover:rotate-1 transition-all duration-500">
+                <!-- Corner decoration -->
+                <div class="absolute top-2 left-2 flex flex-col items-center leading-none z-10">
+                    <span class="font-black text-red-500 text-sm drop-shadow-sm">A</span>
+                    <span class="text-red-500 text-lg drop-shadow-sm">♥</span>
+                </div>
+                
+                <!-- Center symbol -->
+                <div class="flex items-center justify-center flex-1 z-10">
+                    <span class="text-red-500 text-4xl opacity-25">♥</span>
+                </div>
+                
+                <!-- Bottom corner -->
+                <div class="absolute bottom-2 right-2 flex flex-col-reverse items-center leading-none rotate-180 z-10">
+                    <span class="font-black text-red-500 text-sm drop-shadow-sm">A</span>
+                    <span class="text-red-500 text-lg drop-shadow-sm">♥</span>
+                </div>
+                
+                <!-- Shine effects -->
+                <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-transparent via-white/30 to-transparent pointer-events-none"></div>
+                <div class="absolute inset-1 rounded-xl border border-white/40 pointer-events-none"></div>
+            </div>
+
+            <!-- Medium Card -->
+            <div class="w-24 h-36 bg-gradient-to-br from-white via-gray-50 to-blue-50 rounded-2xl font-bold shadow-xl border-4 border-white/90 relative card-luxury card-shine cursor-pointer hover:scale-110 hover:rotate-1 transition-all duration-500">
+                <!-- Corner decoration -->
+                <div class="absolute top-2 left-2 flex flex-col items-center leading-none z-10">
+                    <span class="font-black text-gray-800 text-lg drop-shadow-sm">K</span>
+                    <span class="text-gray-800 text-2xl drop-shadow-sm">♠</span>
+                </div>
+                
+                <!-- Center symbol -->
+                <div class="flex items-center justify-center flex-1 z-10">
+                    <span class="text-gray-800 text-6xl opacity-25">♠</span>
+                </div>
+                
+                <!-- Bottom corner -->
+                <div class="absolute bottom-2 right-2 flex flex-col-reverse items-center leading-none rotate-180 z-10">
+                    <span class="font-black text-gray-800 text-lg drop-shadow-sm">K</span>
+                    <span class="text-gray-800 text-2xl drop-shadow-sm">♠</span>
+                </div>
+                
+                <!-- Shine effects -->
+                <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-transparent via-white/30 to-transparent pointer-events-none"></div>
+                <div class="absolute inset-1 rounded-xl border border-white/40 pointer-events-none"></div>
+            </div>
+
+            <!-- Large Card -->
+            <div class="w-28 h-40 bg-gradient-to-br from-white via-red-50 to-red-100 rounded-2xl font-bold shadow-xl border-4 border-white/90 relative card-luxury card-shine cursor-pointer hover:scale-110 hover:rotate-1 transition-all duration-500">
+                <!-- Corner decoration -->
+                <div class="absolute top-2 left-2 flex flex-col items-center leading-none z-10">
+                    <span class="font-black text-red-500 text-2xl drop-shadow-sm">Q</span>
+                    <span class="text-red-500 text-3xl drop-shadow-sm">♦</span>
+                </div>
+                
+                <!-- Center symbol -->
+                <div class="flex items-center justify-center flex-1 z-10">
+                    <span class="text-red-500 text-8xl opacity-25">♦</span>
+                </div>
+                
+                <!-- Bottom corner -->
+                <div class="absolute bottom-2 right-2 flex flex-col-reverse items-center leading-none rotate-180 z-10">
+                    <span class="font-black text-red-500 text-2xl drop-shadow-sm">Q</span>
+                    <span class="text-red-500 text-3xl drop-shadow-sm">♦</span>
+                </div>
+                
+                <!-- Shine effects -->
+                <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-transparent via-white/30 to-transparent pointer-events-none"></div>
+                <div class="absolute inset-1 rounded-xl border border-white/40 pointer-events-none"></div>
+            </div>
+        </div>
+
+        <div class="text-center text-emerald-100">
+            <p class="mb-4">위의 카드들이 다음과 같이 보여야 합니다:</p>
+            <ul class="text-left max-w-md mx-auto space-y-2">
+                <li>✅ 반짝이는 글로우 효과</li>
+                <li>✅ 주기적인 shine 애니메이션</li>
+                <li>✅ 호버 시 확대 + 회전</li>
+                <li>✅ 둥근 모서리와 두꺼운 테두리</li>
+                <li>✅ 그라디언트 배경</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

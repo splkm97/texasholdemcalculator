@@ -1,0 +1,434 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Card Utils Library Contract",
+    "version": "1.0.0",
+    "description": "Card validation, deck management, and utility functions library interface"
+  },
+  "components": {
+    "schemas": {
+      "Card": {
+        "type": "object",
+        "required": ["suit", "rank", "value", "display", "id"],
+        "properties": {
+          "suit": {
+            "type": "string",
+            "enum": ["hearts", "diamonds", "clubs", "spades"]
+          },
+          "rank": {
+            "type": "string",
+            "enum": ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+          },
+          "value": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 14
+          },
+          "display": {
+            "type": "string",
+            "pattern": "^[AKQJ2-9]|10[♠♥♦♣]$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[AKQJ2-9]|10[SHDC]$"
+          }
+        }
+      },
+      "Deck": {
+        "type": "object",
+        "required": ["availableCards", "usedCards", "totalCards"],
+        "properties": {
+          "availableCards": {
+            "type": "array",
+            "items": {"$ref": "#/components/schemas/Card"}
+          },
+          "usedCards": {
+            "type": "array", 
+            "items": {"$ref": "#/components/schemas/Card"}
+          },
+          "totalCards": {
+            "type": "integer",
+            "enum": [52]
+          }
+        }
+      },
+      "ValidationResult": {
+        "type": "object",
+        "required": ["isValid", "errors"],
+        "properties": {
+          "isValid": {"type": "boolean"},
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {"type": "string"},
+                "message": {"type": "string"},
+                "field": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/deck/create": {
+      "post": {
+        "operationId": "createDeck",
+        "summary": "Create a new standard 52-card deck",
+        "responses": {
+          "200": {
+            "description": "Deck created successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Deck"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deck/shuffle": {
+      "post": {
+        "operationId": "shuffleDeck",
+        "summary": "Shuffle the available cards in a deck",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/Deck"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deck shuffled successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Deck"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deck/deal": {
+      "post": {
+        "operationId": "dealCards",
+        "summary": "Deal specified number of cards from deck",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["deck", "count"],
+                "properties": {
+                  "deck": {"$ref": "#/components/schemas/Deck"},
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 52
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cards dealt successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dealtCards": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/Card"}
+                    },
+                    "remainingDeck": {"$ref": "#/components/schemas/Deck"}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Insufficient cards in deck",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {"type": "string"},
+                    "available": {"type": "integer"},
+                    "requested": {"type": "integer"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/card/create": {
+      "post": {
+        "operationId": "createCard",
+        "summary": "Create a card from suit and rank",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["suit", "rank"],
+                "properties": {
+                  "suit": {
+                    "type": "string",
+                    "enum": ["hearts", "diamonds", "clubs", "spades"]
+                  },
+                  "rank": {
+                    "type": "string", 
+                    "enum": ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Card created successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Card"}
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid suit or rank",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {"type": "string"},
+                    "invalidFields": {"type": "array", "items": {"type": "string"}}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/card/parse": {
+      "post": {
+        "operationId": "parseCard",
+        "summary": "Parse card from string representation",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cardString"],
+                "properties": {
+                  "cardString": {
+                    "type": "string",
+                    "description": "Card representation like 'AS', 'KH', '10D'"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Card parsed successfully",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Card"}
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid card string format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {"type": "string"},
+                    "input": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validate/cards": {
+      "post": {
+        "operationId": "validateCards",
+        "summary": "Validate array of cards for duplicates and correctness",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["cards"],
+                "properties": {
+                  "cards": {
+                    "type": "array",
+                    "items": {"$ref": "#/components/schemas/Card"}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation completed",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ValidationResult"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validate/poker-hand": {
+      "post": {
+        "operationId": "validatePokerHand",
+        "summary": "Validate poker hand configuration for specific game stage",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["playerHand", "communityCards", "stage"],
+                "properties": {
+                  "playerHand": {
+                    "type": "array",
+                    "items": {"$ref": "#/components/schemas/Card"},
+                    "minItems": 0,
+                    "maxItems": 2
+                  },
+                  "communityCards": {
+                    "type": "array", 
+                    "items": {"$ref": "#/components/schemas/Card"},
+                    "minItems": 0,
+                    "maxItems": 5
+                  },
+                  "stage": {
+                    "type": "string",
+                    "enum": ["pre-flop", "flop", "turn", "river"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation completed",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ValidationResult"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compare": {
+      "post": {
+        "operationId": "compareCards",
+        "summary": "Compare two cards for sorting/ranking purposes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["card1", "card2"],
+                "properties": {
+                  "card1": {"$ref": "#/components/schemas/Card"},
+                  "card2": {"$ref": "#/components/schemas/Card"},
+                  "aceHigh": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether Ace should be high (14) or low (1)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comparison completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "integer",
+                      "description": "-1 if card1 < card2, 0 if equal, 1 if card1 > card2"
+                    },
+                    "reasoning": {"type": "string"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/utilities/constants": {
+      "get": {
+        "operationId": "getConstants",
+        "summary": "Get poker-related constants and configurations",
+        "responses": {
+          "200": {
+            "description": "Constants retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "SUITS": {
+                      "type": "array",
+                      "items": {"type": "string"}
+                    },
+                    "RANKS": {
+                      "type": "array", 
+                      "items": {"type": "string"}
+                    },
+                    "HAND_TYPES": {
+                      "type": "object",
+                      "description": "Hand strength constants and descriptions"
+                    },
+                    "DECK_SIZE": {"type": "integer", "enum": [52]},
+                    "UNICODE_SUITS": {
+                      "type": "object",
+                      "description": "Suit name to Unicode symbol mapping"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

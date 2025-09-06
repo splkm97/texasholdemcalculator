@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: poker-calculator-service
+  labels:
+    app: poker-calculator
+spec:
+  selector:
+    app: poker-calculator
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP

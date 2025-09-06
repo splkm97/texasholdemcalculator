@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(scripts/create-new-feature.sh:*)",
+      "Bash(scripts/setup-plan.sh:*)",
+      "Bash(mkdir:*)",
+      "Bash(C:/Users/kangmin/GolandProjects/poker-calculator/scripts/update-agent-context.sh claude)",
+      "Bash(scripts/check-task-prerequisites.sh:*)",
+      "Bash(npm create:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss init:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm test:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npx vitest run:*)",
+      "Bash(npm run dev:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm run test:*)",
+      "Bash(timeout 5 npm run dev)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(timeout 10s npm run dev)",
+      "Bash(pkill:*)",
+      "Bash(true)",
+      "Bash(timeout 8s npm run dev)",
+      "Bash(docker build:*)",
+      "Bash(move k8s-deployment.yaml manifests )",
+      "Bash(move k8s-service.yaml manifests )",
+      "Bash(move k8s-ingress.yaml manifests )",
+      "Bash(move istio-gateway.yaml manifests )",
+      "Bash(move istio-virtualservice.yaml manifests)"
+    ],
+    "deny": []
+  }
+}
